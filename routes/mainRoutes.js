@@ -14,10 +14,20 @@ router.get("/", (req, res) => {
     res.send("Welcome to the main page")
 })
 
-router.post("/connect", (req, res) => {
+router.post("/connect", async (req, res) => {
     console.log(req.body)
-    mainPuppeteer.connect()
-    res.send("Time to connect")
+    var value = await mainPuppeteer.connect()
+
+    if (value !== "") {
+        console.log("value found" )
+        var number = Number(value.replace(/[^0-9.-]+/g,""));
+        var result = await db.update(number)
+        console.log(result)
+    }
+    else{
+        console.log("value not found")
+    }
+
 })
 
 router.get("/load", async (req, res) => {
