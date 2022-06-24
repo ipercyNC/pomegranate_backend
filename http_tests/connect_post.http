@@ -1,0 +1,6 @@
+POST http://localhost:3001/connect HTTP/1.1
+content-type: application/json
+
+{
+    "account": "NWNatural"
+}
