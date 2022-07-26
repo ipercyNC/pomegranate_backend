@@ -1,5 +1,6 @@
 const express = require('express')
 const { append } = require('express/lib/response')
+const { reset } = require('nodemon')
 const router = express.Router()
 const mainPuppeteer = require('../browser/mainPuppeteer')
 const db = require('../db/db_connection')
@@ -15,14 +16,20 @@ router.get("/", (req, res) => {
 })
 
 router.post("/connect", async (req, res) => {
-    console.log(req.body)
+    console.log("okay?")
     var value = await mainPuppeteer.connect()
-
+    // var value = "$49"
     if (value !== "") {
-        console.log("value found" )
+        console.log("Value found", value)
         var number = Number(value.replace(/[^0-9.-]+/g,""));
-        var result = await db.update(number)
-        console.log(result)
+        try {
+            var result = await db.update(number)
+            res.send(JSON.stringify(result))
+        }
+        catch (err) {
+            console.log("Error inserting into DB")
+            console.log(err)
+        }
     }
     else{
         console.log("value not found")
@@ -36,9 +43,24 @@ router.get("/load", async (req, res) => {
     res.send(rows)
 })
 
+router.post("/loadAllAccounts", async (req, res) => {
+    var rows = await db.loadAllAccounts(req.body)
+    console.log("rows", rows.rows)
+    console.log({"results": rows.rows})
+    res.send(JSON.stringify({"results": rows.rows}))
+})
+
 router.post("/login", async (req, res) => {
     var authRes = await db.authenticate(req.body)
-    console.log("Connected!", authRes)
+    // console.log("Connected!", authRes)
+    console.log("authres", authRes)
+    if (authRes) {
+        console.log("1st")
+        res.send(JSON.stringify({"status": "okay"})
+        )
+    } else {
+        res.send("no okay")
+    }
 })
 
 module.exports = router
