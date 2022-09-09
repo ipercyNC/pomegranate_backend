@@ -45,6 +45,7 @@ async function loadAllUsers(callback) {
 
 async function loadAllAccounts(userJson) {
     const username = userJson.username
+    console.log("hey", username)
     return new Promise((resolve, reject) => {
         client.query(    `SELECT * FROM pomegranate.accounts as acc JOIN pomegranate.users as users ON users.id = acc.user_id 
         WHERE users.username = '${username}'
