@@ -1,0 +1,2 @@
+POST http://localhost:3001/verifytoken HTTP/1.1
+Cookie: authToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aW1lIjoiVHVlIFNlcCAwNiAyMDIyIDIyOjAzOjQ1IEdNVC0wNzAwIChQYWNpZmljIERheWxpZ2h0IFRpbWUpIiwidXNlcm5hbWUiOiJpcGVyY3kiLCJpYXQiOjE2NjI1MjcwMjV9.8enCFGlEfG-vJaByqgGjrdZFO5V3H7qg-gYvycV4cy4

@@ -11,26 +11,21 @@ let client = new Client({
 
 
 client.connect()
-// function init() {
-//     client.query("DROP TABLE pomegranate.accounts;CREATE TABLE pomegranate.accounts ( " + 
-//     " id serial NOT NULL PRIMARY KEY,  " + 
-//         " user_id INT NOT NULL, " + 
-//         "account_name VARCHAR ( 50 ) NOT NULL, " + 
-//       "  amount_remaining NUMERIC(5,2), " + 
-//       "  FOREIGN KEY (user_id) " + 
-//         "   REFERENCES pomegranate.users (id) " + 
-//           " );CREATE UNIQUE INDEX idx_employees_workphone " + 
-//           "ON pomegranate.accounts(user_id, account_name);"
-    
-// , (err, rows) => {
-//         if (err)
-//             throw err;
-//         console.log(rows)
-//     })
-// }
+function init() {
+    client.query("INSERT INTO pomegranate.calendar_events(user_id, date, note, created, updated) " + 
+    " VALUES (1, '2022-08-30', 'Buy Diapers', NOW(), NOW());"
+
+, (err, rows) => {
+        if (err)
+            throw err;
+        console.log(rows)
+    })
+}
+
+
 // init()
 
-// client.query('SELECT table_schema,table_name FROM information_schema.tables;', (err, res) => {
+// client.query('SELECT * from pomegranate.calendar_events;', (err, res) => {
 //     if (err) throw err;
 //     for (let row of res.rows) {
 //       console.log(JSON.stringify(row));
@@ -63,9 +58,24 @@ async function loadAllAccounts(userJson) {
 
 }
 
-async function update(updateValue) {
+async function loadAllCalendarEvents(userJson) {
+    const username = userJson.username
     return new Promise((resolve, reject) => {
-        client.query(`INSERT INTO pomegranate.accounts (id, user_id, account_name, amount_remaining) VALUES (DEFAULT, 1, 'NW NATURAL', ${updateValue} ) 
+        client.query(    `SELECT * FROM pomegranate.calendar_events as ce JOIN pomegranate.users as users ON users.id = ce.user_id 
+        WHERE users.username = '${username}'
+        `, (err, rows) => {
+            console.log(err)
+            if (err)
+                return reject(err)
+            return resolve(rows)
+        })
+    })
+
+}
+
+async function update(account, updateValue) {
+    return new Promise((resolve, reject) => {
+        client.query(`INSERT INTO pomegranate.accounts (id, user_id, account_name, amount_remaining) VALUES (DEFAULT, 1, '${account}', ${updateValue} ) 
                 ON CONFLICT (user_id, account_name) DO UPDATE SET amount_remaining = ${updateValue}`, (err, rows) => {
             if (err)
                 return reject(false)
@@ -82,17 +92,16 @@ async function authenticate(userJson) {
         client.query(`SELECT * FROM pomegranate.users WHERE username = '${username}' AND password = '${password}';`,  (err, rows) => {
             if (err)
                 return reject(err);
-                console.log(rows)
                 for (var row of rows.rows) {
-                    console.log(row.username, username)
-                    console.log(row.password, password)
                     if (row.username == username && row.password == password){
-                        resolve(true)
+                        console.log("Username and password match")
+                        return resolve(true)
                     }
                 }
+            console.log("No Username and password match")
             return resolve(false)
         })
     })
 }
 
-module.exports = { loadAllUsers, authenticate, update, loadAllAccounts }
+module.exports = { loadAllUsers, authenticate, update, loadAllAccounts, loadAllCalendarEvents }
