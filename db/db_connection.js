@@ -12,7 +12,23 @@ let client = new Client({
 
 client.connect()
 function init() {
-    client.query("INSERT INTO pomegranate.calendar_events(user_id, date, note, created, updated) " + 
+
+//     client.query("DROP TABLE pomegranate.calendar_events; " + 
+//     " CREATE TABLE pomegranate.calendar_events( " + 
+//     " id serial PRIMARY KEY, " + 
+//     " user_id int4, " + 
+//     " event_date DATE, " + 
+//     " note varchar, " + 
+//     " created timestamptz, " + 
+//     " updated timestamptz" + 
+//     " );"
+// , (err, rows) => {
+//         if (err)
+//             throw err;
+//         console.log(rows)
+//     })
+
+    client.query("INSERT INTO pomegranate.calendar_events(user_id, event_date, note, created, updated) " + 
     " VALUES (1, '2022-08-30', 'Buy Diapers', NOW(), NOW());"
 
 , (err, rows) => {
@@ -48,9 +64,10 @@ async function loadAllAccounts(userJson) {
     console.log("hey", username)
     return new Promise((resolve, reject) => {
         client.query(    `SELECT * FROM pomegranate.accounts as acc JOIN pomegranate.users as users ON users.id = acc.user_id 
-        WHERE users.username = '${username}'
-        `, (err, rows) => {
+        WHERE users.username = '${username}'`
+        , (err, rows) => {
             console.log(err)
+            console.log(rows)
             if (err)
                 return reject(err)
             return resolve(rows)
