@@ -66,8 +66,8 @@ async function loadAllAccounts(userJson) {
         client.query(    `SELECT * FROM pomegranate.accounts as acc JOIN pomegranate.users as users ON users.id = acc.user_id 
         WHERE users.username = '${username}'`
         , (err, rows) => {
-            console.log(err)
-            console.log(rows)
+            // console.log(err)
+            // console.log(rows)
             if (err)
                 return reject(err)
             return resolve(rows)
@@ -82,7 +82,25 @@ async function loadAllCalendarEvents(userJson) {
         client.query(    `SELECT * FROM pomegranate.calendar_events as ce JOIN pomegranate.users as users ON users.id = ce.user_id 
         WHERE users.username = '${username}'
         `, (err, rows) => {
-            console.log(err)
+            // console.log(err)
+            if (err)
+                return reject(err)
+            return resolve(rows)
+        })
+    })
+
+}
+
+async function createEvent(eventJson) {
+    const username = eventJson.username
+    const dateValue = eventJson.dateValue
+    const eventValue = eventJson.eventValue
+
+    return new Promise((resolve, reject) => {
+        client.query(    `INSERT INTO pomegranate.calendar_events(user_id, event_date, note, created, updated)
+        VALUES ((SELECT id from pomegranate.users where username = '${username}'),  '${dateValue}', '${eventValue}', NOW(), NOW());`, 
+        (err, rows) => {
+            // console.log(err)
             if (err)
                 return reject(err)
             return resolve(rows)
@@ -122,4 +140,4 @@ async function authenticate(userJson) {
     })
 }
 
-module.exports = { loadAllUsers, authenticate, update, loadAllAccounts, loadAllCalendarEvents }
+module.exports = { loadAllUsers, authenticate, update, loadAllAccounts, loadAllCalendarEvents, createEvent }

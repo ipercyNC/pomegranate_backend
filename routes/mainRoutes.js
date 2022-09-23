@@ -126,6 +126,12 @@ router.post("/loadAllCalendarEvents", async (req, res) => {
     res.send(JSON.stringify({"results": rows.rows}))
 })
 
+router.post("/createEvent", async (req, res) => {
+    console.log("Creating Event", req.body)
+    var success = await db.createEvent(req.body)
+    res.send(JSON.stringify({"Result": success}))
+})
+
 router.post("/login", async (req, res) => {
     var authRes = await db.authenticate(req.body)
     if (authRes) {
@@ -136,30 +142,19 @@ router.post("/login", async (req, res) => {
             username: req.body.username
         }
         const token = jwt.sign(data, jwtSecretKey)
-        console.log(token)
-        res.cookie('authToken', token)
-        res.send(JSON.stringify({"LoginResult": "Success"})
+        res.send(JSON.stringify({"LoginResult": "Success", "authToken": token})
         )
     } else {
         res.send(JSON.stringify({"LoginResult": "Failure"}))
     }
 })
 router.post("/verifytoken", async (req, res) => {
-    if (req.headers.cookie){
-        let cookies = req.headers.cookie.split(';')
-        for (ind in cookies){
-            let cookieSplit = cookies[ind].split('=')
-            let cookieKey = cookieSplit[0]
-            let cookieValue = cookieSplit[1]
-            console.log("hey", _.isEqual("authToken", cookieKey))
-            if (!_.isEqual("authToken", cookieKey)) {
-                continue
-            }
-            const verified = jwt.verify(cookieValue, process.env.JWT_SECRET)
-            console.log(verified)
-            if (verified) {
-                return res.send(JSON.stringify({"VerifyResult": "Success"}))
-            }
+    // console.log(req.body['authToken'])
+    if (req.body['authToken']){
+        const verified = jwt.verify(req.body['authToken'], process.env.JWT_SECRET)
+        console.log(verified)
+        if (verified) {
+            return res.send(JSON.stringify({"VerifyResult": "Success", "VerifiedUser": verified['username']}))
         }
     }
     return res.send(JSON.stringify({"VerifyResult": "Failure"}))
